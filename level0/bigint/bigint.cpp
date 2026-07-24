@@ -1,35 +1,13 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   bigint.cpp                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: toruinoue <toruinoue@student.42.fr>        +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/23 14:27:29 by fatkeski          #+#    #+#             */
-/*   Updated: 2026/07/21 14:34:16 by toruinoue        ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "bigint.hpp"
 
-bigint::bigint()
-{
-	this->str = "0";
-}
+bigint::bigint(){	this->str = "0";	}
 
-bigint::bigint(unsigned int num)
-{
+bigint::bigint(unsigned int num){
 	std::stringstream ss;
 	ss << num;
-	this->str = ss.str();
-	// std::cout << "str: " << str << std::endl;
-}
+	this->str = ss.str();	}
 
-bigint::bigint(const bigint& source)
-{
-	// (*this) = source;
-	*this = source;
-}
+bigint::bigint(const bigint& source){	(*this) = source;	}
 
 bigint& bigint::operator=(const bigint& source)
 {

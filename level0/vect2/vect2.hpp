@@ -22,12 +22,12 @@ public:
 
 	vect2& operator+=(const vect2& o);
 	vect2& operator-=(const vect2& o);
-	vect2& operator*=(const vect2& o);
+	vect2& operator*=(const vect2& o);	// optional
 	vect2& operator*=(int n);
 
 	vect2 operator+(const vect2& o) const;
 	vect2 operator-(const vect2& o) const;
-	vect2 operator*(const vect2& o) const;
+	vect2 operator*(const vect2& o) const;	// optional
 	vect2 operator*(int n) const;
 
 	vect2& operator++();
