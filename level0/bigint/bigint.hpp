@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   bigint.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fatkeski <fatkeski@student.42.fr>          +#+  +:+       +#+        */
+/*   By: toruinoue <toruinoue@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/23 14:17:26 by fatkeski          #+#    #+#             */
-/*   Updated: 2025/08/01 13:57:18 by fatkeski         ###   ########.fr       */
+/*   Created: 2026/07/18 13:50:49 by toruinoue         #+#    #+#             */
+/*   Updated: 2026/07/18 14:46:49 by toruinoue        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,45 +22,43 @@ class bigint
 {
 	private:
 		std::string str;
-		//std::string result;
+	
 	public:
 		bigint();
 		bigint(unsigned int num);
 		bigint(const bigint& source);
 
-		std::string getStr()const;
+		// std::string getStr() const;
+		std::string getStr() const;
 
+		
 		bigint& operator=(const bigint& source);
+		
+		bigint	operator+(const bigint& other) const;
+		bigint&	operator+=(const bigint& other);
 
-		// addition
-		bigint operator+(const bigint& other)const;
-		bigint& operator+=(const bigint& other);
-
-		// increments
-		bigint& operator++(); // ++x
-		bigint operator++(int); // x++
+		bigint& operator++();
+		bigint operator++(int);
 
 		// shift with num
-		bigint operator<<(unsigned int n)const;
-		bigint operator>>(unsigned int n)const;
+		bigint	operator<<(unsigned int n) const;
+		bigint	operator>>(unsigned int n) const;
 		bigint& operator<<=(unsigned int n);
-		bigint& operator>>=(unsigned int n);
+		bigint& operator>>=(unsigned int m);
 
-		//shift with object
-		bigint operator<<(const bigint& other)const;
-		bigint operator>>(const bigint& other)const;
-		bigint& operator<<=(const bigint& other);
+		// shift with object
+		bigint	operator<<(const bigint& other) const;
+		bigint	operator>>(const bigint& other) const;
+		bigint&	operator<<=(const bigint& other);
 		bigint& operator>>=(const bigint& other);
-
-		// ==, !=, <, >, <=, >=
-		bool operator==(const bigint& other) const;
-		bool operator!=(const bigint& other) const;
-		bool operator<(const bigint& other) const;
-		bool operator>(const bigint& other) const;
-		bool operator<=(const bigint& other) const;
-		bool operator>=(const bigint& other) const;
-
-		// ~bigint();
+		
+		// 5
+		bool	operator==(const bigint& other) const;
+		bool	operator!=(const bigint& other)	const;
+		bool	operator<(const bigint& other) const;
+		bool	operator>(const bigint& other)	const;
+		bool	operator<=(const bigint& other) const;
+		bool	operator>=(const bigint& other)	const;
 
 };
 

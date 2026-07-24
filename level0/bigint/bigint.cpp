@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   bigint.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fatkeski <fatkeski@student.42.fr>          +#+  +:+       +#+        */
+/*   By: toruinoue <toruinoue@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/23 14:27:29 by fatkeski          #+#    #+#             */
-/*   Updated: 2025/07/26 18:15:45 by fatkeski         ###   ########.fr       */
+/*   Updated: 2026/07/21 14:34:16 by toruinoue        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,8 @@ bigint::bigint(unsigned int num)
 
 bigint::bigint(const bigint& source)
 {
-	(*this) = source;
+	// (*this) = source;
+	*this = source;
 }
 
 bigint& bigint::operator=(const bigint& source)
