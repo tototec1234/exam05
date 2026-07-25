@@ -14,7 +14,7 @@
 
 int loadElements(FILE* file, t_elements* elements)
 {
-	int ret = fscanf(file, "%d%c%c%c", &(elements->n_lines), &(elements->empty), &(elements->obstacle), &(elements->full));
+	int ret = fscanf(file, "%d %c %c %c", &(elements->n_lines), &(elements->empty), &(elements->obstacle), &(elements->full));
 
 	if((ret != 4))
 		return(-1);
@@ -31,26 +31,6 @@ int loadElements(FILE* file, t_elements* elements)
 		return(-1);
 
 	return(0);
-}
-
-char* ft_substr(char* arr, int start, int len)
-{
-	char* str = (char*)malloc(len + 1);
-	if (!str)
-		return (NULL);
-	int i = 0;
-	int j = 0;
-	while (arr[i])
-	{
-		if ((i >= start) && (j < len))
-		{
-			str[j] = arr[i];
-			j++;
-		}
-		i++;
-	}
-	str[j] = '\0';
-	return(str);
 }
 
 void free_map(char** arr)
@@ -116,13 +96,16 @@ int loadMap(FILE* file, t_map* map, t_elements* elements)
 			free_map(map->grid);
 			return(-1);
 		}
-		map->grid[i] = ft_substr(line, 0, read);
+		map->grid[i] = (char*)malloc(read + 1);
 		if(!(map->grid[i]))
 		{
 			free(line);
 			free_map(map->grid);
 			return(-1);
 		}
+		for(int j = 0; j < read; j++)
+			map->grid[i][j] = line[j];
+		map->grid[i][read] = '\0';
 
 		if(i == 0)
 			map->width = read;
