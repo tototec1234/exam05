@@ -17,12 +17,21 @@ class vect2{
 		int& operator[](int n) ;
 
 		vect2& operator+=(const vect2& o);
-		vect2 operator+(const vect2& o);
+		vect2 operator+(const vect2& o) const;
 		vect2 operator-() const;
 		vect2& operator-=(const vect2& o);
-		vect2 operator-(const vect2& o);	
+		vect2 operator-(const vect2& o) const;
+		vect2& operator*=(const int n);
+		vect2 operator*(const int n) const;
+
+		vect2& operator++();
+		vect2& operator--();
+		vect2 operator++(int);
+		vect2 operator--(int);
+		
 };
 
+vect2 operator*(const int n, vect2& o);
 std::ostream& operator<<(std::ostream& os, const vect2& o);
 
 #endif
