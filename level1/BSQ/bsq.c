@@ -1,61 +1,22 @@
 #include "bsq.h"
 
-char	**alloc_board(int w, int h)
-{
-	char	**map;
-	int		y;
-
-	map = malloc(sizeof(char *) * h);
-	if (!map)
-		return (NULL);
-	y = 0;
-	while (y < h)
-	{
-		map[y] = malloc(w + 1);
-		if (!map[y])
-		{
-			free_board(map, y);
-			return (NULL);
-		}
-		// for (int x = 0; x < w; x++){map[y][x] = ' ';}
-		map[y][w] = '\0';
-		y++;
-	}
-	return (map);
-}
-
-void	free_board(char **map, int h)
-{
-	int	y;
-
-	if (!map)
-		return ;
-	y = 0;
-	while (y < h)
-	{
-		free(map[y]);
-		y++;
-	}
-	free(map);
-}
-
 static int	is_printable(char c)
 {
 	return (c >= 32 && c <= 126);
 }
 
-static int	copy_line(char *dst, char *src, int w)
+static void	fill_border(char **map, int w, int h, char obst)
 {
-	int	x;
-
-	x = 0;
-	while (x < w)
+	for (int x = 0; x < w + 2; x++)
 	{
-		dst[x] = src[x];
-		x++;
+		map[0][x] = obst;
+		map[h + 1][x] = obst;
 	}
-	dst[w] = '\0';
-	return (0);
+	for (int y = 1; y <= h; y++)
+	{
+		map[y][0] = obst;
+		map[y][w + 1] = obst;
+	}
 }
 
 int	parse(FILE *fp, char ***map, int *w, int *h,
@@ -83,24 +44,24 @@ int	parse(FILE *fp, char ***map, int *w, int *h,
 	}
 	*map = NULL;
 	*w = 0;
-	y = 0;
-	while (y < *h)
+	y = 1;
+	while (y <= *h)
 	{
 		len = getline(&line, &cap, fp);
 		if (len <= 0 || line[len - 1] != '\n')
 		{
 			free(line);
-			free_board(*map, y);
+			free_board(*map, *h + 2);
 			return (-1);
 		}
 		len--;
 		if (len <= 0)
 		{
 			free(line);
-			free_board(*map, y);
+			free_board(*map, *h + 2);
 			return (-1);
 		}
-		if (y == 0)
+		if (y == 1)
 		{
 			*w = (int)len;
 			*map = alloc_board(*w, *h);
@@ -109,11 +70,12 @@ int	parse(FILE *fp, char ***map, int *w, int *h,
 				free(line);
 				return (-1);
 			}
+			fill_border(*map, *w, *h, *obst);
 		}
 		else if ((int)len != *w)
 		{
 			free(line);
-			free_board(*map, *h);
+			free_board(*map, *h + 2);
 			return (-1);
 		}
 		x = 0;
@@ -122,21 +84,21 @@ int	parse(FILE *fp, char ***map, int *w, int *h,
 			if (line[x] != *empty && line[x] != *obst)
 			{
 				free(line);
-				free_board(*map, *h);
+				free_board(*map, *h + 2);
 				return (-1);
 			}
+			(*map)[y][x + 1] = line[x];
 			x++;
 		}
-		copy_line((*map)[y], line, *w);
 		y++;
 	}
 	free(line);
 	return (0);
 }
 
-void	solve(char **map, int w, int h, char empty, char obst, char full)
+void	solve(char **map, int w, int h, char obst, char full)
 {
-	int	dp[h][w];
+	int	dp[h + 2][w + 2];
 	int	best;
 	int	bi;
 	int	bj;
@@ -144,20 +106,20 @@ void	solve(char **map, int w, int h, char empty, char obst, char full)
 	int	x;
 	int	m;
 
-	(void)empty;
+	for (x = 0; x < w + 2; x++)
+		dp[0][x] = 0;
 	best = 0;
-	bi = 0;
-	bj = 0;
-	y = 0;
-	while (y < h)
+	bi = 1;
+	bj = 1;
+	y = 1;
+	while (y <= h)
 	{
-		x = 0;
-		while (x < w)
+		dp[y][0] = 0;
+		x = 1;
+		while (x <= w)
 		{
 			if (map[y][x] == obst)
 				dp[y][x] = 0;
-			else if (y == 0 || x == 0)
-				dp[y][x] = 1;
 			else
 			{
 				m = dp[y - 1][x];
@@ -190,14 +152,20 @@ void	solve(char **map, int w, int h, char empty, char obst, char full)
 	}
 }
 
-void	print_board(char **map, int h)
+void	print_board(char **map, int w, int h)
 {
 	int	y;
+	int	x;
 
-	y = 0;
-	while (y < h)
+	y = 1;
+	while (y <= h)
 	{
-		fputs(map[y], stdout);
+		x = 1;
+		while (x <= w)
+		{
+			fputc(map[y][x], stdout);
+			x++;
+		}
 		fputc('\n', stdout);
 		y++;
 	}
@@ -214,9 +182,9 @@ int	run(FILE *fp)
 
 	if (parse(fp, &map, &w, &h, &empty, &obst, &full) == -1)
 		return (-1);
-	solve(map, w, h, empty, obst, full);
-	print_board(map, h);
-	free_board(map, h);
+	solve(map, w, h, obst, full);
+	print_board(map, w, h);
+	free_board(map, h + 2);
 	return (0);
 }
 
@@ -249,5 +217,5 @@ int	main(int argc, char **argv)
 }
 
 /*
-cc -Wall -Wextra -Werror -o bsq bsq.c
+cc -Wall -Wextra -Werror -o bsq board.c bsq.c
 */

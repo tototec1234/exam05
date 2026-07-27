@@ -6,6 +6,6 @@
 # include <stdio.h>
 
 char	**alloc_board(int w, int h);
-void	free_board(char **map, int h);
+void	free_board(char **map, int rows);
 
 #endif

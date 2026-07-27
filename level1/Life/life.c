@@ -1,45 +1,19 @@
 #include "life.h"
 
-char	**alloc_board(int w, int h)
-{
-	char	**map = malloc(sizeof(char *) * h);
-
-	if (!map)
-		return (NULL);
-	for (int y = 0; y < h; y++)
-	{
-		map[y] = malloc(w + 1);
-		if (!map[y])
-			return(free_board(map, y), NULL);
-		for (int x = 0; x < w; x++){map[y][x] = ' ';}
-		map[y][w] = '\0';
-	}
-	return (map);
-}
-
-void	free_board(char **map, int h)
-{
-	if (!map)
-		return ;
-	for (int y = 0; y < h; y++)
-		free(map[y]);
-	free(map);
-}
-
 void	draw_pen(char **map, int w, int h)
 {
 	char	c;
-	int		x = 0, y = 0 ,pen = 0;
-	
+	int		x = 1, y = 1, pen = 0;
+
 	while (read(0, &c, 1) == 1)
 	{
-		if (c == 'w' && y > 0)
+		if (c == 'w' && y > 1)
 			y--;
-		else if (c == 's' && y < h - 1)
+		else if (c == 's' && y < h)
 			y++;
-		else if (c == 'a' && x > 0)
+		else if (c == 'a' && x > 1)
 			x--;
-		else if (c == 'd' && x < w - 1)
+		else if (c == 'd' && x < w)
 			x++;
 		else if (c == 'x')
 			pen = !pen;
@@ -50,25 +24,15 @@ void	draw_pen(char **map, int w, int h)
 	}
 }
 
-int	count_nb(char **map, int w, int h, int y, int x)
+int	count_nb(char **map, int y, int x)
 {
-	int	n,	ny,	nx;
+	int	n;
 
 	n = 0;
-	for (int dy = -1; dy <= 1; dy ++)
-	{
-		for (int dx =-1 ; dx <= 1 ; dx++)
-		{
-			if (!(dy == 0 && dx == 0))
-			{
-				ny = y + dy;
-				nx = x + dx;
-				if (ny >= 0 && nx >= 0 && ny < h && nx < w
-					&& map[ny][nx] == 'O')
-					n++;
-			}
-		}
-	}
+	for (int dy = -1; dy <= 1; dy++)
+		for (int dx = -1; dx <= 1; dx++)
+			if (!(dy == 0 && dx == 0) && map[y + dy][x + dx] == 'O')
+				n++;
 	return (n);
 }
 
@@ -76,15 +40,15 @@ char	**step(char **map, int w, int h)
 {
 	int		n;
 	int		alive;
+	char	**next = alloc_board(w, h);
 
-	char	**next = alloc_board( w, h);
 	if (!next)
 		return (NULL);
-	for (int y = 0; y < h; y++)
+	for (int y = 1; y <= h; y++)
 	{
-		for (int x = 0; x < w; x++)
+		for (int x = 1; x <= w; x++)
 		{
-			n = count_nb(map, w, h, y, x);
+			n = count_nb(map, y, x);
 			alive = (map[y][x] == 'O');
 			if ((alive && (n == 2 || n == 3)) || (!alive && n == 3))
 				next[y][x] = 'O';
@@ -97,9 +61,9 @@ char	**step(char **map, int w, int h)
 
 void	print_board(char **map, int w, int h)
 {
-	for (int y = 0; y < h; y++)
+	for (int y = 1; y <= h; y++)
 	{
-		for(int x = 0; x < w; x++)
+		for (int x = 1; x <= w; x++)
 			putchar(map[y][x]);
 		putchar('\n');
 	}
@@ -118,20 +82,20 @@ int	main(int argc, char **argv)
 	if (!map)
 		return (1);
 	draw_pen(map, w, h);
-	for (int i = 0 ; i < iter; i++)
+	for (int i = 0; i < iter; i++)
 	{
 		next = step(map, w, h);
-		free_board(map, h);
+		free_board(map, h + 2);
 		if (!next)
-			return 1;
+			return (1);
 		map = next;
 	}
 	print_board(map, w, h);
-	free_board(map, h);
+	free_board(map, h + 2);
 	return (0);
 }
 
 /*
-cc -Wall -Wextra -Werror -o life life.c 
- echo 'sdxddssaaww' | ./life 5 5 0 
+cc -Wall -Wextra -Werror -o life board.c life.c
+echo 'sdxddssaaww' | ./life 5 5 0
 */
