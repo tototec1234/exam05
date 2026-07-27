@@ -1,192 +1,137 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   life.c                                             :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: fatkeski <fatkeski@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/31 23:41:40 by fbetul            #+#    #+#             */
-/*   Updated: 2025/08/01 13:48:17 by fatkeski         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "life.h"
 
-int init_game(t_game* game, char* argv[])
+char	**alloc_board(int w, int h)
 {
-	game->width = atoi(argv[1]);
-	game->height = atoi(argv[2]);
-	game->iterations = atoi(argv[3]);
-	game->alive = '0';
-	game->dead = ' ';
-	game->i = 0;
-	game->j = 0;
-	game->draw = 0;
-	game->board = (char**)malloc((game->height) * sizeof(char *));
-	if(!(game->board))
-		return(-1);
-	for(int i = 0; i < game->height; i++)
+	char	**map = malloc(sizeof(char *) * h);
+
+	if (!map)
+		return (NULL);
+	for (int y = 0; y < h; y++)
 	{
-		game->board[i] = (char *)malloc((game->width) * sizeof(char));
-		if(!(game->board[i])) {
-			free_board(game);
-			return(-1);
-		}
-		for(int j = 0; j < game->width; j++)
-		{
-			game->board[i][j] = ' ';
-		}
+		map[y] = malloc(w + 1);
+		if (!map[y])
+			return(free_board(map, y), NULL);
+		for (int x = 0; x < w; x++){map[y][x] = ' ';}
+		map[y][w] = '\0';
 	}
-	return(0);
+	return (map);
 }
 
-void fill_board(t_game* game)
+void	free_board(char **map, int h)
 {
-	char buffer;
-	int flag;
+	if (!map)
+		return ;
+	for (int y = 0; y < h; y++)
+		free(map[y]);
+	free(map);
+}
 
-	while(read(STDIN_FILENO, &buffer, 1) == 1)
+void	draw_pen(char **map, int w, int h)
+{
+	char	c;
+	int		x = 0, y = 0 ,pen = 0;
+	
+	while (read(0, &c, 1) == 1)
 	{
-		flag = 0;
-		switch (buffer)
-		{
-		case 'w':
-			if(game->i > 0)
-			game->i--;
-			break;
-		case 's':
-			if(game->i < (game->height - 1))
-			game->i++;
-			break;
-		case 'a':
-			if(game->j > 0)
-			game->j--;
-			break;
-		case 'd':
-			if(game->j < (game->width - 1))
-			game->j++;
-			break;
-		case 'x':
-			game->draw = !(game->draw);
-			break;
-		default:
-			flag = 1;
-			break;
-		}
-
-		if(game->draw && (flag == 0))
-		{
-			if((game->i >= 0 )&& (game->i < game->height) && (game->j >= 0) && (game->j < game->width))
-				game->board[game->i][game->j] = game->alive;
-		}
+		if (c == 'w' && y > 0)
+			y--;
+		else if (c == 's' && y < h - 1)
+			y++;
+		else if (c == 'a' && x > 0)
+			x--;
+		else if (c == 'd' && x < w - 1)
+			x++;
+		else if (c == 'x')
+			pen = !pen;
+		else
+			continue ;
+		if (pen)
+			map[y][x] = 'O';
 	}
 }
 
-int count_neighbors(t_game* game, int i, int j)
+int	count_nb(char **map, int w, int h, int y, int x)
 {
-	int count = 0;
-	for(int di = -1; di < 2; di++)
-	{
-		for(int dj = -1; dj < 2; dj++)
-		{
-			if((di == 0) && (dj == 0))
-				continue;
+	int	n,	ny,	nx;
 
-			int ni = i + di;
-			int nj = j + dj;
-			if((ni >= 0) && (nj >=0) && (ni < game->height) && (nj < game->width)) {
-				if(game->board[ni][nj] == game->alive)
-					count++;
+	n = 0;
+	for (int dy = -1; dy <= 1; dy ++)
+	{
+		for (int dx =-1 ; dx <= 1 ; dx++)
+		{
+			if (!(dy == 0 && dx == 0))
+			{
+				ny = y + dy;
+				nx = x + dx;
+				if (ny >= 0 && nx >= 0 && ny < h && nx < w
+					&& map[ny][nx] == 'O')
+					n++;
 			}
 		}
 	}
-	return(count);
+	return (n);
 }
 
-int play(t_game* game)
+char	**step(char **map, int w, int h)
 {
-	char** temp = (char**)malloc((game->height) * sizeof(char *));
-	if(!temp)
-		return(-1);
-	for(int i = 0; i < game->height; i++)
-	{
-		temp[i] = (char *)malloc((game->width) * sizeof(char));
-		if(!(temp[i]))
-			return(-1);
-	}
+	int		n;
+	int		alive;
 
-	for(int i = 0; i < game->height; i++)
+	char	**next = alloc_board( w, h);
+	if (!next)
+		return (NULL);
+	for (int y = 0; y < h; y++)
 	{
-		for(int j = 0; j < game->width; j++)
+		for (int x = 0; x < w; x++)
 		{
-			int neighbors = count_neighbors(game, i, j);
-			if(game->board[i][j] == game->alive) {
-				if(neighbors == 2 || neighbors == 3) {
-					temp[i][j] = game->alive;
-				}
-				else
-					temp[i][j] = game->dead;
-			}
-			else {
-				if(neighbors == 3) {
-					temp[i][j] = game->alive;
-				}
-				else
-					temp[i][j] = game->dead;
-			}
+			n = count_nb(map, w, h, y, x);
+			alive = (map[y][x] == 'O');
+			if ((alive && (n == 2 || n == 3)) || (!alive && n == 3))
+				next[y][x] = 'O';
+			else
+				next[y][x] = ' ';
 		}
 	}
-
-	free_board(game);
-	game->board = temp;
-	return(0);
+	return (next);
 }
 
-void print_board(t_game* game)
+void	print_board(char **map, int w, int h)
 {
-	for(int i = 0; i < game->height; i++)
+	for (int y = 0; y < h; y++)
 	{
-		for(int j = 0; j < game->width; j++)
-		{
-			putchar(game->board[i][j]);
-		}
+		for(int x = 0; x < w; x++)
+			putchar(map[y][x]);
 		putchar('\n');
 	}
 }
 
-void free_board(t_game* game)
+int	main(int argc, char **argv)
 {
-	if(game->board)
-	{
-		for(int i = 0; i < game->height; i++)
-		{
-			if(game->board[i])
-				free(game->board[i]);
-		}
-		free(game->board);
-	}
-}
+	char	**next;
 
-int main(int argc, char* argv[])
-{
-	if(argc != 4)
+	if (argc != 4)
 		return (1);
-
-	t_game game;
-
-	if(init_game(&game, argv) == -1)
-		return(1);
-
-	fill_board(&game);
-
-	for(int i = 0; i < game.iterations; i++) {
-		if(play(&game) == -1) {
-			free_board(&game);
-			return(1);
-		}
+	int w = atoi(argv[1]);
+	int h = atoi(argv[2]);
+	int iter = atoi(argv[3]);
+	char **map = alloc_board(w, h);
+	if (!map)
+		return (1);
+	draw_pen(map, w, h);
+	for (int i = 0 ; i < iter; i++)
+	{
+		next = step(map, w, h);
+		free_board(map, h);
+		if (!next)
+			return 1;
+		map = next;
 	}
-	print_board(&game);
-	free_board(&game);
-
+	print_board(map, w, h);
+	free_board(map, h);
 	return (0);
 }
+
+/*
+cc -Wall -Wextra -Werror -o life life.c 
+ echo 'sdxddssaaww' | ./life 5 5 0 
+*/
