@@ -1,5 +1,4 @@
 #include "life.h"
-
 void	draw_pen(char **map, int w, int h)
 {
 	char	c;
@@ -23,12 +22,9 @@ void	draw_pen(char **map, int w, int h)
 			map[y][x] = 'O';
 	}
 }
-
 int	count_nb(char **map, int y, int x)
 {
-	int	n;
-
-	n = 0;
+	int	n = 0;
 	for (int dy = -1; dy <= 1; dy++)
 		for (int dx = -1; dx <= 1; dx++)
 			if (!(dy == 0 && dx == 0) && map[y + dy][x + dx] == 'O')
@@ -38,24 +34,19 @@ int	count_nb(char **map, int y, int x)
 
 char	**step(char **map, int w, int h)
 {
-	int		n;
-	int		alive;
 	char	**next = alloc_board(w, h);
-
 	if (!next)
 		return (NULL);
 	for (int y = 1; y <= h; y++)
-	{
 		for (int x = 1; x <= w; x++)
 		{
-			n = count_nb(map, y, x);
-			alive = (map[y][x] == 'O');
+			int n = count_nb(map, y, x);
+			int alive = (map[y][x] == 'O');
 			if ((alive && (n == 2 || n == 3)) || (!alive && n == 3))
 				next[y][x] = 'O';
 			else
 				next[y][x] = ' ';
 		}
-	}
 	return (next);
 }
 
