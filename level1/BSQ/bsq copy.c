@@ -20,7 +20,8 @@ static void	fill_border(char **map, int w, int h, char obst)
 }
 
 
-int	parse(FILE *fp, char ***map, int *w, int *h,		char *empty, char *obst, char *full)
+int	parse(FILE *fp, char ***map, int *w, int *h,
+		char *empty, char *obst, char *full)
 {
 	char	*line = NULL;
 	size_t	cap = 0;
@@ -102,6 +103,14 @@ void	solve(char **map, int w, int h, char obst, char full)
 }
 
 
+
+
+
+
+
+
+
+
 int	run(FILE *fp)
 {
 	char	**map;
@@ -116,6 +125,8 @@ int	run(FILE *fp)
 	free_board(map, h + 2);
 	return (0);
 }
+
+
 
 int	main(int argc, char **argv)
 {
@@ -137,6 +148,63 @@ int	main(int argc, char **argv)
 	return (0);
 }
 
+
 /*
 cc -Wall -Wextra -Werror -o bsq board.c bsq.c
 */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include "bsq.h"
+
+char	**alloc_board(int w, int h)
+{
+	char	**map = malloc(sizeof(char *) * (h + 2));
+
+	if (!map)
+		return (NULL);
+	for (int y = 0; y < h + 2; y++)
+	{
+		map[y] = malloc(w + 3);
+		if (!map[y])
+			return (free_board(map, y), NULL);
+		for (int x = 0; x < w + 2; x++)
+			map[y][x] = ' ';
+		map[y][w + 2] = '\0';
+	}
+	return (map);
+}
+
+
+void	free_board(char **map, int rows)
+{
+	if (!map)
+		return ;
+	for (int y = 0; y < rows; y++)
+		free(map[y]);
+	free(map);
+}
+
+
+#ifndef BSQ_H
+# define BSQ_H
+
+# include <stdio.h>
+# include <stdlib.h>
+# include <unistd.h>
+
+char	**alloc_board(int w, int h);
+void	free_board(char **map, int rows);
+
+#endif

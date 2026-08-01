@@ -5,7 +5,8 @@
 # include <stdlib.h>
 # include <unistd.h>
 
-char	**alloc_board(int w, int h);
-void	free_board(char **map, int rows);
+char	**alloc_board(int h, int w, char fill);
+char	**free_board(char **board, int h);
+int		print_board(char **board, int h, int w);
 
 #endif

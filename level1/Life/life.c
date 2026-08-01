@@ -1,5 +1,6 @@
 #include "life.h"
-void	draw_pen(char **map, int w, int h)
+
+static void	draw_pen(char **map, int h, int w)
 {
 	char	c;
 	int		x = 1, y = 1, pen = 0;
@@ -22,9 +23,11 @@ void	draw_pen(char **map, int w, int h)
 			map[y][x] = 'O';
 	}
 }
-int	count_nb(char **map, int y, int x)
+
+static int	count_nb(char **map, int y, int x)
 {
 	int	n = 0;
+
 	for (int dy = -1; dy <= 1; dy++)
 		for (int dx = -1; dx <= 1; dx++)
 			if (!(dy == 0 && dx == 0) && map[y + dy][x + dx] == 'O')
@@ -32,9 +35,10 @@ int	count_nb(char **map, int y, int x)
 	return (n);
 }
 
-char	**step(char **map, int w, int h)
+static char	**step(char **map, int h, int w)
 {
-	char	**next = alloc_board(w, h);
+	char	**next = alloc_board(h, w, ' ');
+
 	if (!next)
 		return (NULL);
 	for (int y = 1; y <= h; y++)
@@ -44,13 +48,12 @@ char	**step(char **map, int w, int h)
 			int alive = (map[y][x] == 'O');
 			if ((alive && (n == 2 || n == 3)) || (!alive && n == 3))
 				next[y][x] = 'O';
-			else
-				next[y][x] = ' ';
 		}
 	return (next);
 }
 
-void	print_board(char **map, int w, int h)
+/* 番兵の枠を除いた盤面本体を出力する。これが提出物の出力。 */
+static void	print_map(char **map, int h, int w)
 {
 	for (int y = 1; y <= h; y++)
 	{
@@ -69,20 +72,20 @@ int	main(int argc, char **argv)
 	int w = atoi(argv[1]);
 	int h = atoi(argv[2]);
 	int iter = atoi(argv[3]);
-	char **map = alloc_board(w, h);
+	char **map = alloc_board(h, w, ' ');
 	if (!map)
 		return (1);
-	draw_pen(map, w, h);
+	draw_pen(map, h, w);
 	for (int i = 0; i < iter; i++)
 	{
-		next = step(map, w, h);
-		free_board(map, h + 2);
+		next = step(map, h, w);
+		free_board(map, h);
 		if (!next)
 			return (1);
 		map = next;
 	}
-	print_board(map, w, h);
-	free_board(map, h + 2);
+	print_map(map, h, w);
+	free_board(map, h);
 	return (0);
 }
 
